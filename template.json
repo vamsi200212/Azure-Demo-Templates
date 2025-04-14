@@ -1,0 +1,736 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_azure_practice_vnet_name": {
+            "defaultValue": "azure-practice-vnet",
+            "type": "String"
+        },
+        "azureFirewalls_azure_practice_firewall_name": {
+            "defaultValue": "azure-practice-firewall",
+            "type": "String"
+        },
+        "routeTables_azure_practice_route_table_name": {
+            "defaultValue": "azure-practice-route-table",
+            "type": "String"
+        },
+        "virtualMachines_azure_practice_public_vm_name": {
+            "defaultValue": "azure-practice-public-vm",
+            "type": "String"
+        },
+        "virtualMachines_azure_practice_private_vm_name": {
+            "defaultValue": "azure-practice-private-vm",
+            "type": "String"
+        },
+        "networkInterfaces_azure_practice_public_vm664_name": {
+            "defaultValue": "azure-practice-public-vm664",
+            "type": "String"
+        },
+        "publicIPAddresses_azure_practice_public_vm_ip_name": {
+            "defaultValue": "azure-practice-public-vm-ip",
+            "type": "String"
+        },
+        "networkInterfaces_azure_practice_private_vm561_name": {
+            "defaultValue": "azure-practice-private-vm561",
+            "type": "String"
+        },
+        "firewallPolicies_azure_practice_firewall_policy_name": {
+            "defaultValue": "azure-practice-firewall-policy",
+            "type": "String"
+        },
+        "networkSecurityGroups_azure_practice_public_vm_nsg_name": {
+            "defaultValue": "azure-practice-public-vm-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_azure_practice_private_vm_nsg_name": {
+            "defaultValue": "azure-practice-private-vm-nsg",
+            "type": "String"
+        },
+        "publicIPAddresses_azure_practice_firewall_public_ip_name": {
+            "defaultValue": "azure-practice-firewall-public-ip",
+            "type": "String"
+        },
+        "publicIPAddresses_azure_practice_firewall_management_public_ip_name": {
+            "defaultValue": "azure-practice-firewall-management-public-ip",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/firewallPolicies",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('firewallPolicies_azure_practice_firewall_policy_name')]",
+            "location": "eastus",
+            "properties": {
+                "sku": {
+                    "tier": "Basic"
+                },
+                "threatIntelMode": "Alert"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name')]",
+            "location": "eastus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowCidrBlockCustomAnyInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'), 'AllowCidrBlockCustomAnyInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "10.0.2.4",
+                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name')]",
+            "location": "eastus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowCidrBlockCustom3389Inbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'), 'AllowCidrBlockCustom3389Inbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "This rule is for RDP connection to public VM",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "10.0.0.4",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('publicIPAddresses_azure_practice_firewall_management_public_ip_name')]",
+            "location": "eastus",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "172.178.67.104",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('publicIPAddresses_azure_practice_firewall_public_ip_name')]",
+            "location": "eastus",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "172.174.56.194",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('publicIPAddresses_azure_practice_public_vm_ip_name')]",
+            "location": "eastus",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "172.191.134.42",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('routeTables_azure_practice_route_table_name')]",
+            "location": "eastus",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "ToPrivateSubnet",
+                        "id": "[resourceId('Microsoft.Network/routeTables/routes', parameters('routeTables_azure_practice_route_table_name'), 'ToPrivateSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "10.0.2.4"
+                        },
+                        "type": "Microsoft.Network/routeTables/routes"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualMachines_azure_practice_private_vm_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_private_vm561_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "additionalCapabilities": {
+                    "hibernationEnabled": false
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "ubuntu-24_04-lts",
+                        "sku": "server",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_azure_practice_private_vm_name'), '_disk1_563c721f93ff4d08a72da3d20d46180f')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_azure_practice_private_vm_name'), '_disk1_563c721f93ff4d08a72da3d20d46180f'))]"
+                        },
+                        "deleteOption": "Delete",
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_azure_practice_private_vm_name')]",
+                    "adminUsername": "azurepractice01",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    },
+                    "securityType": "TrustedLaunch"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_private_vm561_name'))]",
+                            "properties": {
+                                "deleteOption": "Detach"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualMachines_azure_practice_public_vm_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_public_vm664_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "additionalCapabilities": {
+                    "hibernationEnabled": false
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_azure_practice_public_vm_name'), '_OsDisk_1_25a784bd62314fa6a8a13c76510a1592')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_azure_practice_public_vm_name'), '_OsDisk_1_25a784bd62314fa6a8a13c76510a1592'))]"
+                        },
+                        "deleteOption": "Delete",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "azure-practice-",
+                    "adminUsername": "azurepractice01",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault",
+                            "enableHotpatching": false
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    },
+                    "securityType": "TrustedLaunch"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_public_vm664_name'))]",
+                            "properties": {
+                                "deleteOption": "Detach"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('firewallPolicies_azure_practice_firewall_policy_name'), '/DefaultNetworkRuleCollectionGroup')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_azure_practice_firewall_policy_name'))]"
+            ],
+            "properties": {
+                "priority": 200,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [
+                            {
+                                "ruleType": "NetworkRule",
+                                "name": "Allow-Public-To-Private",
+                                "ipProtocols": [
+                                    "Any"
+                                ],
+                                "sourceAddresses": [
+                                    "10.0.0.0/24"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                    "10.0.1.0/24"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                    "*"
+                                ]
+                            }
+                        ],
+                        "name": "Allow-Public-To-Private",
+                        "priority": 100
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkInterfaces_azure_practice_private_vm561_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePrivateSubnet')]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_private_vm561_name')), '/ipConfigurations/ipconfig1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.0.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePrivateSubnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'), '/AllowCidrBlockCustom3389Inbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'))]"
+            ],
+            "properties": {
+                "description": "This rule is for RDP connection to public VM",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "10.0.0.4",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'), '/AllowCidrBlockCustomAnyInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "10.0.2.4",
+                "destinationAddressPrefix": "10.0.1.0/24",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/routeTables/routes",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('routeTables_azure_practice_route_table_name'), '/ToPrivateSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_azure_practice_route_table_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.1.0/24",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "10.0.2.4"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_azure_practice_vnet_name'), '/AzureFirewallManagementSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_azure_practice_vnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.2.64/26",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_azure_practice_vnet_name'), '/AzureFirewallSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_azure_practice_vnet_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.2.0/26",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkInterfaces_azure_practice_public_vm664_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_public_vm_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePublicSubnet')]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_azure_practice_public_vm664_name')), '/ipConfigurations/ipconfig1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_public_vm_ip_name'))]",
+                                "properties": {
+                                    "deleteOption": "Detach"
+                                }
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePublicSubnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_azure_practice_vnet_name'), '/AzurePrivateSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_azure_practice_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('virtualNetworks_azure_practice_vnet_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'))]",
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_azure_practice_route_table_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "AzureFirewallSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/26",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "AzureFirewallManagementSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallManagementSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.2.64/26",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "AzurePrivateSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePrivateSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_private_vm_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "AzurePublicSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzurePublicSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'))]"
+                            },
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_azure_practice_route_table_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_azure_practice_vnet_name'), '/AzurePublicSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_azure_practice_vnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'))]",
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_azure_practice_route_table_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_azure_practice_public_vm_nsg_name'))]"
+                },
+                "routeTable": {
+                    "id": "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_azure_practice_route_table_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('azureFirewalls_azure_practice_firewall_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_firewall_management_public_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallManagementSubnet')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_firewall_public_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallSubnet')]",
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_azure_practice_firewall_policy_name'))]"
+            ],
+            "properties": {
+                "sku": {
+                    "name": "AZFW_VNet",
+                    "tier": "Basic"
+                },
+                "threatIntelMode": "Alert",
+                "additionalProperties": {},
+                "managementIpConfiguration": {
+                    "name": "[concat(parameters('azureFirewalls_azure_practice_firewall_name'), '-management-public-ip')]",
+                    "id": "[concat(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewalls_azure_practice_firewall_name')), concat('/azureFirewallIpConfigurations/', parameters('azureFirewalls_azure_practice_firewall_name'), '-management-public-ip'))]",
+                    "properties": {
+                        "publicIPAddress": {
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_firewall_management_public_ip_name'))]"
+                        },
+                        "subnet": {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallManagementSubnet')]"
+                        }
+                    }
+                },
+                "ipConfigurations": [
+                    {
+                        "name": "[concat(parameters('azureFirewalls_azure_practice_firewall_name'), '-public-ip')]",
+                        "id": "[concat(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewalls_azure_practice_firewall_name')), concat('/azureFirewallIpConfigurations/', parameters('azureFirewalls_azure_practice_firewall_name'), '-public-ip'))]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_azure_practice_firewall_public_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_azure_practice_vnet_name'), 'AzureFirewallSubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "networkRuleCollections": [],
+                "applicationRuleCollections": [],
+                "natRuleCollections": [],
+                "firewallPolicy": {
+                    "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_azure_practice_firewall_policy_name'))]"
+                }
+            }
+        }
+    ]
+}

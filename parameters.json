@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_azure_practice_vnet_name": {
+            "value": null
+        },
+        "azureFirewalls_azure_practice_firewall_name": {
+            "value": null
+        },
+        "routeTables_azure_practice_route_table_name": {
+            "value": null
+        },
+        "virtualMachines_azure_practice_public_vm_name": {
+            "value": null
+        },
+        "virtualMachines_azure_practice_private_vm_name": {
+            "value": null
+        },
+        "networkInterfaces_azure_practice_public_vm664_name": {
+            "value": null
+        },
+        "publicIPAddresses_azure_practice_public_vm_ip_name": {
+            "value": null
+        },
+        "networkInterfaces_azure_practice_private_vm561_name": {
+            "value": null
+        },
+        "firewallPolicies_azure_practice_firewall_policy_name": {
+            "value": null
+        },
+        "networkSecurityGroups_azure_practice_public_vm_nsg_name": {
+            "value": null
+        },
+        "networkSecurityGroups_azure_practice_private_vm_nsg_name": {
+            "value": null
+        },
+        "publicIPAddresses_azure_practice_firewall_public_ip_name": {
+            "value": null
+        },
+        "publicIPAddresses_azure_practice_firewall_management_public_ip_name": {
+            "value": null
+        }
+    }
+}

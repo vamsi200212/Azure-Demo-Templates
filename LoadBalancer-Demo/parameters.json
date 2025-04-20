@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loadBalancers_practice_lb_name": {
+            "value": null
+        },
+        "virtualNetworks_practice_vnet_name": {
+            "value": null
+        },
+        "publicIPAddresses_public_ip_lb_name": {
+            "value": null
+        },
+        "virtualMachines_backend_server_1_name": {
+            "value": null
+        },
+        "virtualMachines_backend_server_2_name": {
+            "value": null
+        },
+        "bastionHosts_practice_vnet_bastion_name": {
+            "value": null
+        },
+        "networkInterfaces_backend_server_1175_z1_name": {
+            "value": null
+        },
+        "networkInterfaces_backend_server_2342_z2_name": {
+            "value": null
+        },
+        "networkSecurityGroups_backend_subnet_nsg_name": {
+            "value": null
+        }
+    }
+}
